@@ -4,53 +4,42 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Set content type
-header('Content-Type: application/json');
-
-// Include the shared DB connection
 require_once 'conexao.php';
 $con->set_charset("utf8");
 
-// Get JSON input
-$jsonParam = json_decode(file_get_contents('php://input'), true);
+$input = json_decode(file_get_contents('php://input'), true);
+$idDescricao = isset($input['idDescricao']) ? trim($input['idDescricao']) : '';
 
-if (!$jsonParam) {
-    echo json_encode(['success' => false, 'message' => 'Dados JSON inválidos ou ausentes.']);
-    exit;
-}
+$sql = "SELECT idCliente, idPrestador, idDescrição, idQntHrs, idQntPessoas, idMaterial
+        FROM Cliente
+        WHERE LOWER(idDescrição) LIKE LOWER(?)";
 
-// Extract and validate data
-$idPrestadpr   = trim($jsonParam['idPrestadpr'] ?? '');
-$idDescricao   = trim($jsonParam['idDescricao'] ?? '');
-$idQntHrs      = trim($jsonParam['idQntHrs'] ?? '');
-$idQntPessoas  = trim($jsonParam['idQntPessoas'] ?? '');
-$idMaterial    = trim($jsonParam['idMaterial'] ?? '');
+$stmt = $con->prepare($sql);
+$likeParam = '%' . $idDescricao . '%';
+$stmt->bind_param('s', $likeParam);
 
-// Validate required fields
-if (empty($idPrestadpr) || empty($idDescricao) || empty($idQntHrs) || empty($idQntPessoas) || empty($idMaterial)) {
-    echo json_encode(['success' => false, 'message' => 'Campos obrigatórios ausentes.']);
-    exit;
-}
+$stmt->execute();
+$result = $stmt->get_result();
 
-// Prepare and bind
-$stmt = $con->prepare("
-    INSERT INTO Cliente (idPrestadpr, idDescrição, idQntHrs, idQntPessoas, idMaterial)
-    VALUES (?, ?, ?, ?, ?)
-");
+$response = [];
 
-if (!$stmt) {
-    echo json_encode(['success' => false, 'message' => 'Erro ao preparar a consulta: ' . $con->error]);
-    exit;
-}
-
-$stmt->bind_param("sssss", $idPrestadpr, $idDescricao, $idQntHrs, $idQntPessoas, $idMaterial);
-
-// Execute and return result
-if ($stmt->execute()) {
-    echo json_encode(['success' => true, 'message' => 'Cliente inserido com sucesso!']);
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $response[] = array_map(fn($val) => mb_convert_encoding($val, 'UTF-8', 'ISO-8859-1'), $row);
+    }
 } else {
-    echo json_encode(['success' => false, 'message' => 'Erro no registro do cliente: ' . $stmt->error]);
+    $response[] = [
+        "idCliente"     => 0,
+        "idPrestador"   => "",
+        "idDescrição"   => "",
+        "idQntHrs"      => "",
+        "idQntPessoas"  => "",
+        "idMaterial"    => ""
+    ];
 }
+
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode($response);
 
 $stmt->close();
 $con->close();
