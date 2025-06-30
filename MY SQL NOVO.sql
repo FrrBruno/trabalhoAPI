@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `seg`.`Cliente` (
   `idNome` VARCHAR(45) NOT NULL,
   `idCliente` INT NOT NULL AUTO_INCREMENT,
   `idPrestador` VARCHAR(45) NOT NULL,
-  `idDescrição` VARCHAR(45) NOT NULL,
+  `idDescricao` VARCHAR(45) NOT NULL,
   `idQntHrs` VARCHAR(45) NOT NULL,
   `idQntPessoas` VARCHAR(45) NOT NULL,
   `idMaterial` VARCHAR(45) NOT NULL,
