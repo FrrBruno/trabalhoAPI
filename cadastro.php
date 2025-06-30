@@ -36,7 +36,7 @@ if (!$idNome || !$idPrestador || !$idDescricao || !$idQntHrs || !$idQntPessoas |
 
 // Prepare statement
 $stmt = $con->prepare("
-    INSERT INTO Cliente (idNome, idPrestador, idDescrição, idQntHrs, idQntPessoas, idMaterial, idData)
+    INSERT INTO Cliente (idNome, idPrestador, idDescricao, idQntHrs, idQntPessoas, idMaterial, idData)
     VALUES (?, ?, ?, ?, ?, ?, ?)
 ");
 
@@ -46,7 +46,7 @@ if (!$stmt) {
 }
 
 // Bind parameters (all are VARCHARs = "s")
-$stmt->bind_param("sisssss", $idNome, $idPrestador, $idDescricao, $idQntHrs, $idQntPessoas, $idMaterial, $idData);
+$stmt->bind_param("sssssss", $idNome, $idPrestador, $idDescricao, $idQntHrs, $idQntPessoas, $idMaterial, $idData);
 
 // Execute and return result
 if ($stmt->execute()) {

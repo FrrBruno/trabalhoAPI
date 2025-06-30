@@ -10,9 +10,9 @@ $con->set_charset("utf8");
 $input = json_decode(file_get_contents('php://input'), true);
 $idDescricao = isset($input['idDescricao']) ? trim($input['idDescricao']) : '';
 
-$sql = "SELECT idCliente, idPrestador, idDescrição, idQntHrs, idQntPessoas, idMaterial
+$sql = "SELECT idCliente, idPrestador, idDescricao, idQntHrs, idQntPessoas, idMaterial
         FROM Cliente
-        WHERE LOWER(idDescrição) LIKE LOWER(?)";
+        WHERE LOWER(idDescricao) LIKE LOWER(?)";
 
 $stmt = $con->prepare($sql);
 $likeParam = '%' . $idDescricao . '%';
@@ -31,7 +31,7 @@ if ($result && $result->num_rows > 0) {
     $response[] = [
         "idCliente"     => 0,
         "idPrestador"   => "",
-        "idDescrição"   => "",
+        "idDescricao"   => "",
         "idQntHrs"      => "",
         "idQntPessoas"  => "",
         "idMaterial"    => ""
